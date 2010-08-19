@@ -71,7 +71,7 @@ Shoes.app width: 800, height: 700 do
     ?+ => red, ?- => red, ?| => red,
     ?$ => green,
     ?# => orange,
-    ?> => blue, ?< => blue, ?^ => blue,
+    ?> => blue, ?< => blue, ?^ => blue, ?v => blue,
     ?@ => purple,
     ?r => purple, ?c => purple, ?R => purple, ?C => purple
   }
