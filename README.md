@@ -8,4 +8,4 @@ However, the version for OS X did not work on my system, but I had an older vers
 If this is your case, just HL me on #cobots.
 
 ## Screenshot
-![screenshot](screenshot.png)
+![screenshot](http://github.com/eregon/cobots/raw/master/screenshot.png)
