@@ -66,7 +66,7 @@ class Map
   end
 end
 
-Shoes.app width: 800, height: 600 do
+Shoes.app width: 800, height: 700 do
   COLORS = {
     ?+ => red, ?- => red, ?| => red,
     ?$ => green,
