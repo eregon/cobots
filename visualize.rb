@@ -3,70 +3,70 @@
 # eregon, whyday 19/08/2010
 =begin
 +  +  +  +  +  +  +  +  +  +
-        $     $     $       
-                            
+        $     $     $
+
 +  +  +  +  +  +  +  +  +  +
-     $     $     $     $    
-                            
+     $     $     $     $
+
 +  +  +  +  +  +  +  +  +  +
- >> >> >> ## ## ## << << << 
- >> >> >> ## ## ## << << << 
+ >> >> >> ## ## ## << << <<
+ >> >> >> ## ## ## << << <<
 +  +  +--+  +  +  +--+  +  +
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
 +  +--+  +  +  +  +  +--+  +
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
 +--+  +  +  +  +  +  +  +--+
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
- ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ 
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
+ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^
 +  +  +  +  +  +  +  +  +  +
-  c           @           r 
-                            
+  c           @           r
+
 +  +  +  +  +  +  +  +  +  +
 =end
+DIR = "logs"
 
-contents = File.open(Dir["logs/*"].first, "rb", &:read)
+def load_file file
+  contents = File.open(file, 'rb', &:read)
 
-maps = contents.scan(/^! BEGIN_MAP !\n(.+?)\n! END_MAP !$|^[+-]+?\n(.+?)\n[+-]+?$/m).map(&:compact)
+  maps = contents.scan(/^! BEGIN_MAP !\n(.+?)\n! END_MAP !$|^[+-]+?\n(.+?)\n[+-]+?$/m).map(&:compact)
+  maps.map! { |map| Map.new(map.first) }
 
-# R first, C second
-moves = contents.scan(/^!(\w):  (\w+), (\w):  (\w+)!$|^! MOVES (\w):(\w+) (\w):(\w+) !$/).map { |move|
-  move.compact!
-  if move.first =~ /r/i
-    [move[1], move[3]]
-  else
-    [move[3], move[1]]
-  end
-}
+  # R first, C second
+  moves = contents.scan(/^!(\w):  (\w+), (\w):  (\w+)!$|^! MOVES (\w):(\w+) (\w):(\w+) !$/).map { |move|
+    move.compact!
+    if move.first =~ /r/i
+      [move[1], move[3]]
+    else
+      [move[3], move[1]]
+    end
+  }
 
-p [maps,moves].map(&:size)
+  [maps, moves]
+end
 
 class Map
   attr_reader :lines
   def initialize str
     @lines = str.lines.map(&:chomp)
   end
-  
+
   include Enumerable
   def each(&b)
     @lines.each(&b)
   end
-  
+
   def width
     @lines.first.size
   end
-  
+
   def height
     @lines.size
   end
 end
 
-maps.map! { |map| Map.new(map.first) }
-map = maps.first
-
-CELLW, CELLH = 15, 27
-Shoes.app width: map.width*CELLW, height: map.height*CELLH do
+Shoes.app width: 800, height: 600 do
   COLORS = {
     ?+ => red, ?- => red, ?| => red,
     ?$ => green,
@@ -88,21 +88,25 @@ Shoes.app width: map.width*CELLW, height: map.height*CELLH do
       }
     end
   end
-  
+
+  list_box items: Dir["#{DIR}/*"] { |file|
+    @main.clear if @main
+    @maps, @moves = load_file(file.text)
+    draw_main @maps.first, @moves[@i = 0]
+  }
+
   button("pred") {
-    if maps[@i-1]
+    if @maps[@i-1]
       @main.clear
-      @i -= 1 
-      draw_main maps[@i], moves[@i]
+      @i -= 1
+      draw_main @maps[@i], @moves[@i]
     end
   }
   button("next") {
-    if maps[@i+1]
+    if @maps[@i+1]
       @main.clear
       @i += 1
-      draw_main maps[@i], moves[@i]
+      draw_main @maps[@i], @moves[@i]
     end
   }
-  @i = 0
-  draw_main maps.first, moves[@i]
 end
